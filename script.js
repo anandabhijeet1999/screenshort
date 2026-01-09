@@ -4,7 +4,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     const blackScreen = document.getElementById("blackScreenOverlay");
     if (blackScreen) {
-      // Force inline styles for maximum priority
+      // Force inline styles for maximum priority to ensure overlay works
       blackScreen.style.cssText = `
                 position: fixed !important;
                 top: 0 !important;
@@ -29,7 +29,7 @@
     function (e) {
       e.preventDefault();
       e.stopPropagation();
-      // Silent block - show black screen if screenshot attempt
+      // Show black screen to block screenshot if context menu was for screenshot attempt
       showBlackScreen();
       return false;
     },
@@ -51,7 +51,7 @@
 
       if (isScreenshotKey) {
         showBlackScreen();
-        // Force multiple times to ensure it shows
+        // Force multiple times to ensure black screen shows immediately
         setTimeout(function () {
           showBlackScreen();
         }, 0);
@@ -63,14 +63,15 @@
         }, 50);
       }
 
+      // Block Print Screen key (keyCode 44)
       if (e.keyCode === 44) {
         e.preventDefault();
         e.stopPropagation();
         showBlackScreen();
-
         return false;
       }
 
+      // Block F12 (Developer Tools) - keyCode 123
       if (e.keyCode === 123) {
         e.preventDefault();
         e.stopPropagation();
@@ -78,6 +79,7 @@
         return false;
       }
 
+      // Block Ctrl+Shift+I (Open Developer Tools)
       if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
         e.preventDefault();
         e.stopPropagation();
@@ -85,6 +87,7 @@
         return false;
       }
 
+      // Block Ctrl+Shift+J (Open Developer Console)
       if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
         e.preventDefault();
         e.stopPropagation();
@@ -92,6 +95,7 @@
         return false;
       }
 
+      // Block Ctrl+Shift+C (Inspect Element)
       if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
         e.preventDefault();
         e.stopPropagation();
@@ -99,43 +103,43 @@
         return false;
       }
 
-      // Block Ctrl+U (View Source) - Silent
+      // Block Ctrl+U (View Source) - can be used to see HTML content
       if (e.ctrlKey && e.keyCode === 85) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection
+        showBlackScreen();
         return false;
       }
 
-      // Block Ctrl+S (Save Page) - Silent
+      // Block Ctrl+S (Save Page) - can be used to save HTML with content
       if (e.ctrlKey && e.keyCode === 83) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection
+        showBlackScreen();
         return false;
       }
 
-      // Block Ctrl+P (Print - which can be used to save as PDF) - Silent
+      // Block Ctrl+P (Print) - can be used to save as PDF
       if (e.ctrlKey && e.keyCode === 80) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection
+        showBlackScreen();
         return false;
       }
 
-      // Block Ctrl+Shift+P (Command Palette - can open dev tools) - Silent
+      // Block Ctrl+Shift+P (Command Palette - can open dev tools)
       if (e.ctrlKey && e.shiftKey && e.keyCode === 80) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection
+        showBlackScreen();
         return false;
       }
 
-      // Block Alt+Print Screen (Windows screenshot of active window) - Silent
+      // Block Alt+Print Screen (Windows screenshot of active window)
       if (e.altKey && e.keyCode === 44) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection - just black screen
+        showBlackScreen();
         return false;
       }
 
@@ -143,15 +147,14 @@
       if (e.keyCode === 91 && e.keyCode === 44) {
         e.preventDefault();
         e.stopPropagation();
-        // Silent protection - just black screen
         return false;
       }
 
-      // Block Ctrl+Shift+S (Snipping Tool - Windows) - Silent
+      // Block Ctrl+Shift+S (Snipping Tool - Windows)
       if (e.ctrlKey && e.shiftKey && e.keyCode === 83) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection
+        showBlackScreen();
         return false;
       }
 
@@ -181,8 +184,7 @@
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
-          showBlackScreen(); // Show black screen immediately
-          // Silent protection - just black screen
+          showBlackScreen();
           return false;
         }
 
@@ -195,24 +197,23 @@
           e.stopPropagation();
           e.stopImmediatePropagation();
           showBlackScreen();
-          // Silent protection - just black screen
           return false;
         }
       }
 
-      // Block F5 (Refresh - to prevent clearing protection) - Silent
+      // Block F5 (Refresh) - to prevent clearing protection
       if (e.keyCode === 116) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection
+        showBlackScreen();
         return false;
       }
 
-      // Block Ctrl+R / Cmd+R (Refresh) - Silent
+      // Block Ctrl+R / Cmd+R (Refresh)
       if ((e.ctrlKey || e.metaKey) && e.keyCode === 82) {
         e.preventDefault();
         e.stopPropagation();
-        showBlackScreen(); // Silent protection
+        showBlackScreen();
         return false;
       }
     },
@@ -237,7 +238,6 @@
     false
   );
 
-  // This function prevents dragging images to save them
   document.addEventListener(
     "drag",
     function (e) {
@@ -257,34 +257,30 @@
     false
   );
 
-  // and attempts to close them or warn the user
   let devToolsOpen = false;
-  const threshold = 160;
+  const threshold = 160; // Threshold for detecting dev tools (pixels)
 
   setInterval(function () {
-    // Check if developer tools are open by detecting window size difference
     if (
       window.outerHeight - window.innerHeight > threshold ||
       window.outerWidth - window.innerWidth > threshold
     ) {
       if (!devToolsOpen) {
         devToolsOpen = true;
-
+        // Attempt to refocus window
         window.blur();
-
         window.focus();
       }
     } else {
       devToolsOpen = false;
     }
-  }, 500);
+  }, 500); // Check every 500ms
 
   document.addEventListener(
     "copy",
     function (e) {
       e.preventDefault();
       e.clipboardData.setData("text/plain", "");
-      // Silent protection - just black screen
       return false;
     },
     false
@@ -295,7 +291,6 @@
     function (e) {
       e.preventDefault();
       e.clipboardData.setData("text/plain", "");
-      // Silent protection - just black screen
       return false;
     },
     false
@@ -318,7 +313,6 @@
       function (e) {
         e.preventDefault();
         e.stopPropagation();
-        // Silent protection - just black screen
         return false;
       },
       false
@@ -339,7 +333,6 @@
     "beforeprint",
     function (e) {
       e.preventDefault();
-      // Silent protection - just black screen
       return false;
     },
     false
@@ -352,6 +345,7 @@
   function showBlackScreen() {
     const blackScreen = document.getElementById("blackScreenOverlay");
     if (blackScreen) {
+      // Use requestAnimationFrame for smooth rendering
       requestAnimationFrame(function () {
         blackScreen.style.cssText = `
                     position: fixed !important;
@@ -375,7 +369,7 @@
         isBlackScreenActive = true;
       });
 
-      // Also set immediately (not waiting for animation frame)
+      // Also set immediately (not waiting for animation frame) for faster response
       blackScreen.style.display = "block";
       blackScreen.style.opacity = "1";
       blackScreen.style.visibility = "visible";
@@ -394,6 +388,7 @@
         clearTimeout(blackScreenTimeout);
       }
 
+      // Set timeout to hide black screen after some time if page is still visible
       blackScreenTimeout = setTimeout(function () {
         // Only hide if page is visible and has focus for a while
         if (!document.hidden && document.hasFocus()) {
@@ -411,7 +406,7 @@
           // Keep it visible if page is still hidden or no focus
           showBlackScreen();
         }
-      }, 15000); // 15 seconds - longer timeout
+      }, 15000); // 15 seconds timeout
 
       // Continuously check and maintain black screen - very frequent
       if (blackScreenCheckInterval) {
@@ -430,11 +425,14 @@
           blackScreen.style.width = "100vw";
           blackScreen.style.height = "100vh";
         }
-      }, 50); // Check every 50ms - very frequent
+      }, 50); // Check every 50ms for fast detection
     }
   }
 
-  // This function hides the black screen overlay
+  /**
+   * This function hides the black screen overlay.
+   * Only hides if page is visible and has focus.
+   */
   function hideBlackScreen() {
     const blackScreen = document.getElementById("blackScreenOverlay");
     if (blackScreen && !document.hidden && document.hasFocus()) {
@@ -472,10 +470,14 @@
     }
   });
 
+  /**
+   * This function shows a warning and black screen.
+   * Used when protection mechanisms are triggered.
+   */
   function showWarning(message) {
     showBlackScreen();
 
-    // Force black screen to stay visible
+    // Force black screen to stay visible with multiple attempts
     setTimeout(function () {
       showBlackScreen();
     }, 10);
@@ -520,7 +522,6 @@
               nodeId.includes("capture")
             ) {
               node.remove();
-              // Silent protection - just black screen
             }
           }
         });
@@ -539,7 +540,6 @@
     function () {
       if (document.fullscreenElement) {
         document.exitFullscreen();
-        // Silent protection - just black screen
       }
     },
     false
@@ -578,7 +578,6 @@
         lastFocusTime = Date.now();
         visibilityChangeCount++;
         showBlackScreen(); // Show black screen immediately when page is hidden
-        // Silent protection - just black screen
       } else {
         const timeHidden = Date.now() - lastFocusTime;
         // If page was hidden for more than 1 second, might be screenshot/recording
@@ -622,14 +621,12 @@
     );
     navigator.mediaDevices.getDisplayMedia = function (constraints) {
       showBlackScreen(); // Show black screen immediately
-      // Silent protection - just black screen
       return Promise.reject(
         new DOMException("Screen recording is not allowed.", "NotAllowedError")
       );
     };
   }
 
-  // Block getUserMedia API (can be used for screen capture)
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(
       navigator.mediaDevices
@@ -648,7 +645,6 @@
             videoConstraints.mandatory.chromeMediaSource === "screen")
         ) {
           showBlackScreen(); // Show black screen immediately
-          // Silent protection - just black screen
           return Promise.reject(
             new DOMException(
               "Screen recording is not allowed.",
@@ -659,13 +655,11 @@
       }
       // Allow regular camera access but log it
       return originalGetUserMedia(constraints).catch(function (error) {
-        // Silent protection - just black screen
         return Promise.reject(error);
       });
     };
   }
 
-  // Block legacy getUserMedia (older browsers)
   if (navigator.getUserMedia) {
     const originalGetUserMedia = navigator.getUserMedia.bind(navigator);
     navigator.getUserMedia = function (
@@ -681,7 +675,6 @@
           videoConstraints.mediaSource === "application"
         ) {
           showBlackScreen(); // Show black screen immediately
-          // Silent protection - just black screen
           if (errorCallback) {
             errorCallback(
               new DOMException(
@@ -697,7 +690,6 @@
     };
   }
 
-  // Block webkitGetUserMedia (Safari/Chrome legacy)
   if (navigator.webkitGetUserMedia) {
     const originalWebkitGetUserMedia =
       navigator.webkitGetUserMedia.bind(navigator);
@@ -714,7 +706,6 @@
           videoConstraints.mediaSource === "application"
         ) {
           showBlackScreen(); // Show black screen immediately
-          // Silent protection - just black screen
           if (errorCallback) {
             errorCallback(
               new DOMException(
@@ -734,7 +725,6 @@
     };
   }
 
-  // Block mozGetUserMedia (Firefox legacy)
   if (navigator.mozGetUserMedia) {
     const originalMozGetUserMedia = navigator.mozGetUserMedia.bind(navigator);
     navigator.mozGetUserMedia = function (
@@ -750,7 +740,6 @@
           videoConstraints.mediaSource === "application"
         ) {
           showBlackScreen(); // Show black screen immediately
-          // Silent protection - just black screen
           if (errorCallback) {
             errorCallback(
               new DOMException(
@@ -770,7 +759,6 @@
     };
   }
 
-  // Monitor for active MediaStream tracks (screen sharing detection)
   setInterval(function () {
     if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
       navigator.mediaDevices
@@ -788,7 +776,6 @@
 
           if (screenDevices.length > 0) {
             showBlackScreen(); // Show black screen when screen recording detected
-            // Silent protection - just black screen
           }
         })
         .catch(function () {
@@ -797,7 +784,6 @@
     }
   }, 1000);
 
-  // Block MediaRecorder API for screen recording
   if (window.MediaRecorder) {
     const OriginalMediaRecorder = window.MediaRecorder;
     window.MediaRecorder = function (stream, options) {
@@ -820,7 +806,6 @@
             track.label.toLowerCase().includes("display")
           ) {
             showBlackScreen(); // Show black screen immediately
-            // Silent protection - just black screen
             throw new DOMException(
               "Screen recording is not allowed.",
               "NotAllowedError"
@@ -864,7 +849,6 @@
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
-          // Silent protection - just black screen
           return false;
         }
       }
@@ -879,7 +863,6 @@
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-        // Silent protection - just black screen
         return false;
       }
     },
@@ -892,7 +875,6 @@
       // Try to detect active screen sharing
       navigator.mediaDevices.getDisplayMedia = function () {
         showBlackScreen();
-        // Silent protection - just black screen
         return Promise.reject(
           new DOMException(
             "Screen recording is not allowed.",
@@ -910,7 +892,6 @@
     "blur",
     function () {
       lastBlurTime = Date.now();
-
       showBlackScreen();
 
       // Clear existing timeout
@@ -974,7 +955,7 @@
         blackScreen.style.zIndex = "999999";
       }
     }
-  }, 50); // Check every 50ms for even faster detection
+  }, 50);
 
   console.log("%cProtection initialized", "color: green; font-size: 12px;");
 })();
